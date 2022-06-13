@@ -32,11 +32,18 @@ export const TransactionProvider = ({ children }) => {
     addressTo: "",
     amount: "",
   });
+  const [walletBalance, setWalletBalance] = useState();
 
   const router = useRouter();
 
+  let acctBalance;
+
   useEffect(() => {
     checkIfWalletIsConnected();
+    (async () => {
+      const wallet = await getWalletBalance();
+      setWalletBalance(wallet);
+    })();
   }, []);
 
   // create user profile in sanity
@@ -59,12 +66,20 @@ export const TransactionProvider = ({ children }) => {
   const connectWallet = async (metamask = eth) => {
     try {
       if (!window.ethereum) return alert("Please install an ethereum wallet");
-      console.log("metamask", metamask);
-      console.log("eth", window.ethereum);
       const accounts = await metamask.request({
         method: "eth_requestAccounts",
       });
+
+      const balance = await metamask.request({
+        method: "eth_getBalance",
+        params: [accounts[0], "latest"],
+      });
+
+      acctBalance = ethers.utils.formatEther(balance);
+
       setCurrentAccount(accounts[0]);
+      setWalletBalance(acctBalance);
+      return ethers.utils.formatEther(balance);
     } catch (error) {
       console.error(error);
       throw new Error("No ethereum Object.");
@@ -80,7 +95,24 @@ export const TransactionProvider = ({ children }) => {
 
       if (accounts.length) {
         setCurrentAccount(accounts[0]);
-        console.log("Wallet is already connected");
+      }
+    } catch (error) {
+      console.error(error);
+      throw new Error("No ethereum object.");
+    }
+  };
+
+  const getWalletBalance = async (metamask = eth) => {
+    try {
+      const accounts = await metamask.request({ method: "eth_accounts" });
+
+      if (accounts.length) {
+        const balance = await metamask.request({
+          method: "eth_getBalance",
+          params: [accounts[0], "latest"],
+        });
+
+        return ethers.utils.formatEther(balance);
       }
     } catch (error) {
       console.error(error);
@@ -193,6 +225,7 @@ export const TransactionProvider = ({ children }) => {
         handleChange,
         formData,
         isLoading,
+        walletBalance,
       }}
     >
       {children}

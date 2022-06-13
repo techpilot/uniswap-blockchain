@@ -25,7 +25,8 @@ const style = {
 const Header = () => {
   const [selectedNav, setSelectedNav] = useState("swap");
   const [username, setUsername] = useState();
-  const { connectWallet, currentAccount } = useContext(TransactionContext);
+  const { connectWallet, currentAccount, walletBalance } =
+    useContext(TransactionContext);
 
   useEffect(() => {
     setUsername(
@@ -104,8 +105,8 @@ const Header = () => {
         )}
 
         <div className={`${style.button} ${style.buttonPadding}`}>
-          <div className={`${style.buttonIconContainer} mx-2`}>
-            <HiOutlineDotsVertical />
+          <div className={`${style.buttonAccent} ${style.buttonPadding}`}>
+            {currentAccount && walletBalance ? walletBalance.slice(0, 5) : 0.0}
           </div>
         </div>
       </div>

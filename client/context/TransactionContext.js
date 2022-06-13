@@ -134,13 +134,6 @@ export const TransactionProvider = ({ children }) => {
 
       const parsedAmount = ethers.utils.parseEther(amount);
 
-      const transactionHash = await transactionContract.publishTransaction(
-        addressTo,
-        parsedAmount,
-        `Transferring ETH ${parsedAmount} to ${addressTo}`,
-        "TRANSFER"
-      );
-
       await metamask.request({
         method: "eth_sendTransaction",
         params: [
@@ -152,6 +145,13 @@ export const TransactionProvider = ({ children }) => {
           },
         ],
       });
+
+      const transactionHash = await transactionContract.publishTransaction(
+        addressTo,
+        parsedAmount,
+        `Transferring ETH ${parsedAmount} to ${addressTo}`,
+        "TRANSFER"
+      );
 
       setIsLoading(true);
 
